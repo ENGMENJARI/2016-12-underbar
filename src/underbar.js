@@ -227,15 +227,16 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    iterator=iterator||_.identity
     if(collection.length===0){
-      return false
+      return true
     }
     // TIP: Try re-using reduce() here.
   return _.reduce(collection,function(result,item){
-    if(result){
-      return true
+    if(result===false){
+      return false
     }
-      return result && !!iterator(item)
+      return !! iterator(item)&&result
     },true)
     }
   
@@ -243,7 +244,12 @@
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    iterator=iterator||_.identity
     // TIP: There's a very clever way to re-use every() here.
+ return !(_.every(collection,function(elem){
+  return !iterator(elem)
+ }))
+ 
   };
 
 
@@ -266,12 +272,31 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-  };
+    
+    for (var i=0;i < arguments.length; i++) {
+        for (var key in arguments[i]) {
+            
+                obj[key] = arguments[i][key];
+            }
+        }
+            return obj;
 
-  // Like extend, but doesn't ever overwrite a key that already
-  // exists in obj
+    }
+   //Like extend, but doesn't ever overwrite a key that already exits in obj//
   _.defaults = function(obj) {
-  };
+    for (var i=0;i < arguments.length; i++) {
+        for (var key in arguments[i]){
+          if (! Object.keys(obj).includes(key)){
+            obj[key]=arguments[i][key]
+          }
+        }
+    }
+   return obj
+}
+ 
+
+
+
 
 
   /**
@@ -314,7 +339,24 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
+    var obj={};
+    var result;
+    return function() {
+      if (Object.keys(obj)===undefined) {
+        obj[JSON.stringify(arguments)]=func.apply(this, arguments);
+      }
+      
+  else if(Object.keys(obj).includes(JSON.stringify(arguments))){
+      return obj[JSON.stringify(arguments)]=func.apply(this, arguments);
+    }
+    else {
+      obj[JSON.stringify(arguments)]=func.apply(this, arguments);
+      
+     }
+    }
+   
+    }
+
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
